@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { getLoads, updateLoad, createLoad, getUsers } from '../lib/api';
+import { getLoads, updateLoad, getUsers } from '../lib/api';
 import type { Load, LoadStatus, User } from '../types/index';
 import { useAuth } from '../context/AuthContext';
 import KanbanColumn from './KanbanColumn';
-import LoadCard from './LoadCard';
 
 const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
   { value: 'pending', label: 'Pending', color: 'bg-gray-100' },
@@ -16,9 +14,8 @@ const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
   { value: 'transferred', label: 'Transferred', color: 'bg-purple-100' },
 ];
 
-const KanbanBoard: React.FC = () => {
+const KanbanBoard = () => {
   const [loads, setLoads] = useState<Load[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -44,11 +41,10 @@ const KanbanBoard: React.FC = () => {
       // Filter loads for employees - they should only see loads assigned to them
       let filteredLoads = loadsRes.data;
       if (user?.role === 'employee') {
-        filteredLoads = loadsRes.data.filter(load => load.assignedTo === user.id);
+        filteredLoads = loadsRes.data.filter((load: Load) => load.assignedTo === user.id);
       }
 
       setLoads(filteredLoads);
-      setUsers(usersRes.data);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
