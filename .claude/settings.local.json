@@ -9,7 +9,10 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(git remote add:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix remaining TypeScript build errors\n\n- Remove unused User import and getUsers call from KanbanBoard\n- Add vite-env.d.ts with ImportMeta and CSS module type declarations\n- Fix import.meta.env TypeScript error\n- Fix CSS import type errors\n\nAll TypeScript errors resolved for Vercel deployment\n\n🤖 Generated with Claude Code \\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

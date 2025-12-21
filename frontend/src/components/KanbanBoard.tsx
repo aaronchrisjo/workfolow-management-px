@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { getLoads, updateLoad, getUsers } from '../lib/api';
-import type { Load, LoadStatus, User } from '../types/index';
+import { getLoads, updateLoad } from '../lib/api';
+import type { Load, LoadStatus } from '../types/index';
 import { useAuth } from '../context/AuthContext';
 import KanbanColumn from './KanbanColumn';
 
@@ -33,10 +33,7 @@ const KanbanBoard = () => {
 
   const fetchData = async () => {
     try {
-      const [loadsRes, usersRes] = await Promise.all([
-        getLoads(),
-        user?.role !== 'employee' ? getUsers() : Promise.resolve({ data: [] })
-      ]);
+      const loadsRes = await getLoads();
 
       // Filter loads for employees - they should only see loads assigned to them
       let filteredLoads = loadsRes.data;
