@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getLoads, createLoad, updateLoad, deleteLoad, getUsers } from '../lib/api';
 import type { Load, User } from '../types/index';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const LoadManagement: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -9,10 +9,10 @@ const LoadManagement: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
-    clientName: '',
-    clientNumber: '',
-    status: 'pending' as any,
-    assignedTo: '',
+    client_name: '',
+    client_number: '',
+    status: 'pending' as const,
+    assigned_to: '',
   });
   const [error, setError] = useState('');
   const { user } = useAuth();
@@ -25,12 +25,12 @@ const LoadManagement: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [loadsRes, usersRes] = await Promise.all([
+      const [loadsData, usersData] = await Promise.all([
         getLoads(),
-        canCreateLoads ? getUsers() : Promise.resolve({ data: [] })
+        canCreateLoads ? getUsers() : Promise.resolve([])
       ]);
-      setLoads(loadsRes.data);
-      setUsers(usersRes.data);
+      setLoads(loadsData);
+      setUsers(usersData);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -44,29 +44,33 @@ const LoadManagement: React.FC = () => {
 
     try {
       await createLoad({
-        clientName: formData.clientName,
-        clientNumber: formData.clientNumber,
+        client_name: formData.client_name,
+        client_number: formData.client_number,
         status: formData.status,
-        assignedTo: formData.assignedTo ? parseInt(formData.assignedTo) : undefined,
+        assigned_to: formData.assigned_to || undefined,
       });
-      setFormData({ clientName: '', clientNumber: '', status: 'pending', assignedTo: '' });
+      setFormData({ client_name: '', client_number: '', status: 'pending', assigned_to: '' });
       setShowCreateForm(false);
       fetchData();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create load');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to create load');
+      } else {
+        setError('Failed to create load');
+      }
     }
   };
 
-  const handleAssign = async (loadId: number, userId: string) => {
+  const handleAssign = async (loadId: string, userId: string) => {
     try {
-      await updateLoad(loadId, { assignedTo: userId ? parseInt(userId) : null });
+      await updateLoad(loadId, { assigned_to: userId || null });
       fetchData();
     } catch (err) {
       alert('Failed to assign load');
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this load?')) return;
 
     try {
@@ -108,8 +112,8 @@ const LoadManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
               <input
                 type="text"
-                value={formData.clientName}
-                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                value={formData.client_name}
+                onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -118,8 +122,8 @@ const LoadManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Client Number</label>
               <input
                 type="text"
-                value={formData.clientNumber}
-                onChange={(e) => setFormData({ ...formData, clientNumber: e.target.value })}
+                value={formData.client_number}
+                onChange={(e) => setFormData({ ...formData, client_number: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -128,7 +132,7 @@ const LoadManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as typeof formData.status })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="pending">Pending</option>
@@ -141,8 +145,8 @@ const LoadManagement: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
               <select
-                value={formData.assignedTo}
-                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                value={formData.assigned_to}
+                onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Unassigned</option>
@@ -193,10 +197,10 @@ const LoadManagement: React.FC = () => {
             {loads.map((load) => (
               <tr key={load.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {load.clientName}
+                  {load.client_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {load.clientNumber}
+                  {load.client_number}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -212,7 +216,7 @@ const LoadManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {canCreateLoads ? (
                     <select
-                      value={load.assignedTo || ''}
+                      value={load.assigned_to || ''}
                       onChange={(e) => handleAssign(load.id, e.target.value)}
                       className="border border-gray-300 rounded px-2 py-1 text-sm"
                     >
@@ -222,11 +226,11 @@ const LoadManagement: React.FC = () => {
                       ))}
                     </select>
                   ) : (
-                    load.assignedToName || 'Unassigned'
+                    load.assigned_to_name || 'Unassigned'
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(load.createdAt).toLocaleDateString()}
+                  {new Date(load.created_at).toLocaleDateString()}
                 </td>
                 {canCreateLoads && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

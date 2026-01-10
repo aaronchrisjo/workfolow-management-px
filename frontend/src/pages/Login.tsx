@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,8 +18,12 @@ const Login: React.FC = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Login failed. Please try again.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -77,12 +81,6 @@ const Login: React.FC = () => {
             {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-md border border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-2">Default credentials:</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Email: admin@workflow.com</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Password: admin123</p>
-        </div>
       </div>
     </div>
   );

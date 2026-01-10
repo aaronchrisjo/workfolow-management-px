@@ -1,6 +1,5 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useDraggable } from '@dnd-kit/core';
 import type { Load } from '../types/index';
 
 interface LoadCardProps {
@@ -13,13 +12,11 @@ const LoadCard: React.FC<LoadCardProps> = ({ load }) => {
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({ id: load.id });
+  } = useDraggable({ id: load.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
     opacity: isDragging ? 0.5 : 1,
   };
 
@@ -32,21 +29,21 @@ const LoadCard: React.FC<LoadCardProps> = ({ load }) => {
       className="bg-white p-3 rounded-md shadow-sm border border-gray-200 hover:shadow-md cursor-grab active:cursor-grabbing"
     >
       <div className="flex justify-between items-start mb-2">
-        <h4 className="font-medium text-gray-900 text-sm">{load.clientName}</h4>
-        <span className="text-xs text-gray-500">#{load.clientNumber}</span>
+        <h4 className="font-medium text-gray-900 text-sm">{load.client_name}</h4>
+        <span className="text-xs text-gray-500">#{load.client_number}</span>
       </div>
 
-      {load.assignedToName && (
+      {load.assigned_to_name && (
         <div className="flex items-center text-xs text-gray-600 mb-1">
           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
           </svg>
-          {load.assignedToName}
+          {load.assigned_to_name}
         </div>
       )}
 
       <div className="text-xs text-gray-500">
-        {new Date(load.createdAt).toLocaleDateString()}
+        {new Date(load.created_at).toLocaleDateString()}
       </div>
     </div>
   );

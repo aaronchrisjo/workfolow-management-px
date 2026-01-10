@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { getLoads, updateLoad } from '../lib/api';
+import { getLoads, updateLoad, subscribeToLoads } from '../lib/api';
 import type { Load, LoadStatus } from '../types/index';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import KanbanColumn from './KanbanColumn';
 
 const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
@@ -29,19 +29,41 @@ const KanbanBoard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+
+    const channel = subscribeToLoads((payload) => {
+      if (payload.eventType === 'INSERT' && payload.new) {
+        setLoads((prev) => {
+          if (user?.role === 'employee' && payload.new?.assigned_to !== user.id) {
+            return prev;
+          }
+          return [payload.new!, ...prev];
+        });
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        setLoads((prev) => {
+          if (user?.role === 'employee' && payload.new?.assigned_to !== user.id) {
+            return prev.filter((l) => l.id !== payload.new!.id);
+          }
+          return prev.map((l) => (l.id === payload.new!.id ? payload.new! : l));
+        });
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        setLoads((prev) => prev.filter((l) => l.id !== payload.old!.id));
+      }
+    });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [user]);
 
   const fetchData = async () => {
     try {
-      const loadsRes = await getLoads();
+      let fetchedLoads = await getLoads();
 
-      // Filter loads for employees - they should only see loads assigned to them
-      let filteredLoads = loadsRes.data;
       if (user?.role === 'employee') {
-        filteredLoads = loadsRes.data.filter((load: Load) => load.assignedTo === user.id);
+        fetchedLoads = fetchedLoads.filter((load: Load) => load.assigned_to === user.id);
       }
 
-      setLoads(filteredLoads);
+      setLoads(fetchedLoads);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -54,21 +76,27 @@ const KanbanBoard = () => {
 
     if (!over) return;
 
-    const loadId = parseInt(active.id.toString());
+    const loadId = active.id.toString();
     const newStatus = over.id as LoadStatus;
 
     const load = loads.find(l => l.id === loadId);
     if (!load || load.status === newStatus) return;
 
+    setLoads(prevLoads =>
+      prevLoads.map(l =>
+        l.id === loadId ? { ...l, status: newStatus } : l
+      )
+    );
+
     try {
       await updateLoad(loadId, { status: newStatus });
-      setLoads(prevLoads =>
-        prevLoads.map(l =>
-          l.id === loadId ? { ...l, status: newStatus } : l
-        )
-      );
     } catch (err) {
       console.error('Failed to update load:', err);
+      setLoads(prevLoads =>
+        prevLoads.map(l =>
+          l.id === loadId ? { ...l, status: load.status } : l
+        )
+      );
       alert('Failed to update load status');
     }
   };

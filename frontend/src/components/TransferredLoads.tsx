@@ -12,8 +12,8 @@ const TransferredLoads: React.FC = () => {
 
   const fetchTransferredLoads = async () => {
     try {
-      const response = await getLoadsByStatus('transferred');
-      setLoads(response.data);
+      const loadsData = await getLoadsByStatus('transferred');
+      setLoads(loadsData);
     } catch (err) {
       console.error('Failed to fetch transferred loads:', err);
     } finally {
@@ -51,16 +51,16 @@ const TransferredLoads: React.FC = () => {
             {loads.map((load) => (
               <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                  {load.clientName}
+                  {load.client_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {load.clientNumber}
+                  {load.client_number}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {load.assignedToName || 'Unassigned'}
+                  {load.assigned_to_name || 'Unassigned'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(load.updatedAt).toLocaleString()}
+                  {new Date(load.updated_at).toLocaleString()}
                 </td>
               </tr>
             ))}

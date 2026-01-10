@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getLoadsByStatus, updateLoad } from '../lib/api';
 import type { Load } from '../types/index';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const PausedLoads: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -14,8 +14,8 @@ const PausedLoads: React.FC = () => {
 
   const fetchPausedLoads = async () => {
     try {
-      const response = await getLoadsByStatus('paused');
-      setLoads(response.data);
+      const loadsData = await getLoadsByStatus('paused');
+      setLoads(loadsData);
     } catch (err) {
       console.error('Failed to fetch paused loads:', err);
     } finally {
@@ -23,7 +23,7 @@ const PausedLoads: React.FC = () => {
     }
   };
 
-  const handleResume = async (loadId: number) => {
+  const handleResume = async (loadId: string) => {
     try {
       await updateLoad(loadId, { status: 'in_progress' });
       fetchPausedLoads();
@@ -67,16 +67,16 @@ const PausedLoads: React.FC = () => {
             {loads.map((load) => (
               <tr key={load.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {load.clientName}
+                  {load.client_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {load.clientNumber}
+                  {load.client_number}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {load.assignedToName || 'Unassigned'}
+                  {load.assigned_to_name || 'Unassigned'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(load.updatedAt).toLocaleString()}
+                  {new Date(load.updated_at).toLocaleString()}
                 </td>
                 {(user?.role === 'admin' || user?.role === 'supervisor' || user?.role === 'allocator') && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

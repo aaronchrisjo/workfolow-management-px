@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { Load, LoadStatus } from '../types/index';
 import LoadCard from './LoadCard';
 
@@ -27,14 +26,9 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, label, color, loads
         ref={setNodeRef}
         className="flex-1 bg-gray-50 p-3 rounded-b-lg min-h-[500px] space-y-2"
       >
-        <SortableContext
-          items={loads.map(l => l.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {loads.map(load => (
-            <LoadCard key={load.id} load={load} />
-          ))}
-        </SortableContext>
+        {loads.map(load => (
+          <LoadCard key={load.id} load={load} />
+        ))}
 
         {loads.length === 0 && (
           <div className="text-center text-gray-400 text-sm mt-4">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getLoads } from '../lib/api';
 import type { Load } from '../types/index';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Dashboard: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -14,8 +14,8 @@ const Dashboard: React.FC = () => {
 
   const fetchLoads = async () => {
     try {
-      const response = await getLoads();
-      setLoads(response.data);
+      const loadsData = await getLoads();
+      setLoads(loadsData);
     } catch (err) {
       console.error('Failed to fetch loads:', err);
     } finally {
@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
   };
 
   const getMyLoads = () => {
-    return loads.filter(load => load.assignedTo === user?.id);
+    return loads.filter(load => load.assigned_to === user?.id);
   };
 
   const stats = [
@@ -92,10 +92,10 @@ const Dashboard: React.FC = () => {
                 {getMyLoads().map((load) => (
                   <tr key={load.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {load.clientName}
+                      {load.client_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {load.clientNumber}
+                      {load.client_number}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(load.createdAt).toLocaleDateString()}
+                      {new Date(load.created_at).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}
@@ -152,10 +152,10 @@ const Dashboard: React.FC = () => {
                 {loads.slice(0, 10).map((load) => (
                   <tr key={load.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {load.clientName}
+                      {load.client_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {load.clientNumber}
+                      {load.client_number}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -169,10 +169,10 @@ const Dashboard: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {load.assignedToName || 'Unassigned'}
+                      {load.assigned_to_name || 'Unassigned'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(load.createdAt).toLocaleDateString()}
+                      {new Date(load.created_at).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}

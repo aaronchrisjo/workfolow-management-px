@@ -10,7 +10,7 @@ const UserManagement: React.FC = () => {
     email: '',
     password: '',
     name: '',
-    role: 'employee' as 'admin' | 'allocator' | 'employee',
+    role: 'employee' as 'admin' | 'supervisor' | 'allocator' | 'employee',
   });
   const [error, setError] = useState('');
 
@@ -20,8 +20,8 @@ const UserManagement: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await getUsers();
-      setUsers(response.data);
+      const usersData = await getUsers();
+      setUsers(usersData);
     } catch (err) {
       console.error('Failed to fetch users:', err);
     } finally {
@@ -38,12 +38,16 @@ const UserManagement: React.FC = () => {
       setFormData({ email: '', password: '', name: '', role: 'employee' });
       setShowCreateForm(false);
       fetchUsers();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create user');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to create user');
+      } else {
+        setError('Failed to create user');
+      }
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
     try {
@@ -113,7 +117,7 @@ const UserManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as typeof formData.role })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="employee">Employee</option>
@@ -167,6 +171,7 @@ const UserManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                    user.role === 'supervisor' ? 'bg-indigo-100 text-indigo-800' :
                     user.role === 'allocator' ? 'bg-blue-100 text-blue-800' :
                     'bg-green-100 text-green-800'
                   }`}>
@@ -174,7 +179,7 @@ const UserManagement: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(user.createdAt).toLocaleDateString()}
+                  {new Date(user.created_at).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button

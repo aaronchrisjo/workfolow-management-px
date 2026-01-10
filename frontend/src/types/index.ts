@@ -3,30 +3,29 @@ export type UserRole = 'admin' | 'supervisor' | 'allocator' | 'employee';
 export type LoadStatus = 'pending' | 'in_progress' | 'paused' | 'completed' | 'transferred';
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: UserRole;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Load {
-  id: number;
-  clientName: string;
-  clientNumber: string;
+  id: string;
+  client_name: string;
+  client_number: string;
   status: LoadStatus;
-  assignedTo: number | null;
-  assignedToName?: string;
-  assignedToEmail?: string;
-  createdBy: number;
-  createdByName?: string;
-  createdAt: string;
-  updatedAt: string;
+  assigned_to: string | null;
+  assigned_to_name?: string;
+  assigned_to_email?: string;
+  created_by: string;
+  created_by_name?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
