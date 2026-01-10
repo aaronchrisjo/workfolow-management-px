@@ -29,9 +29,9 @@ const TransferredLoads: React.FC = () => {
     <div>
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Transferred Loads</h2>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900">
+      <div className="bg-white dark:bg-neutral-900 rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+          <thead className="bg-gray-50 dark:bg-black">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Client
@@ -47,9 +47,9 @@ const TransferredLoads: React.FC = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-neutral-700">
             {loads.map((load) => (
-              <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {load.client_name}
                 </td>

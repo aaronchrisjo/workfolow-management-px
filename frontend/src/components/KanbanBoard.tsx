@@ -7,11 +7,11 @@ import { useAuth } from '../hooks/useAuth';
 import KanbanColumn from './KanbanColumn';
 
 const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
-  { value: 'pending', label: 'Pending', color: 'bg-gray-100' },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100' },
-  { value: 'paused', label: 'Paused', color: 'bg-yellow-100' },
-  { value: 'completed', label: 'Completed', color: 'bg-green-100' },
-  { value: 'transferred', label: 'Transferred', color: 'bg-purple-100' },
+  { value: 'pending', label: 'Pending', color: 'bg-gray-100 dark:bg-gray-800' },
+  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900' },
+  { value: 'paused', label: 'Paused', color: 'bg-yellow-100 dark:bg-yellow-900' },
+  { value: 'completed', label: 'Completed', color: 'bg-green-100 dark:bg-green-900' },
+  { value: 'transferred', label: 'Transferred', color: 'bg-purple-100 dark:bg-purple-900' },
 ];
 
 const KanbanBoard = () => {
@@ -106,12 +106,12 @@ const KanbanBoard = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>;
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Kanban Board</h2>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Kanban Board</h2>
 
       <DndContext
         sensors={sensors}
