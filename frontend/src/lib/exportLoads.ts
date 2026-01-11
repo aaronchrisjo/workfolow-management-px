@@ -45,21 +45,21 @@ async function fetchLoadsForExport(filters: ExportFilters): Promise<Load[]> {
   let loads = (data || []).map(mapRowToLoad);
 
   if (filters.filterType === 'paused') {
-    loads = loads.filter((l) => l.status === 'paused');
+    loads = loads.filter((l: Load) => l.status === 'paused');
   } else if (filters.filterType === 'allocated') {
-    loads = loads.filter((l) => l.assigned_to !== null);
+    loads = loads.filter((l: Load) => l.assigned_to !== null);
   }
 
   if (filters.dateFrom) {
     const from = new Date(filters.dateFrom);
     from.setHours(0, 0, 0, 0);
-    loads = loads.filter((l) => new Date(l.created_at) >= from);
+    loads = loads.filter((l: Load) => new Date(l.created_at) >= from);
   }
 
   if (filters.dateTo) {
     const to = new Date(filters.dateTo);
     to.setHours(23, 59, 59, 999);
-    loads = loads.filter((l) => new Date(l.created_at) <= to);
+    loads = loads.filter((l: Load) => new Date(l.created_at) <= to);
   }
 
   return loads;
