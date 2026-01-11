@@ -8,6 +8,7 @@ import {
 } from "../lib/api";
 import type { Load, User } from "../types/index";
 import { useAuth } from "../hooks/useAuth";
+import ExportLoadsButton from "./ExportLoadsButton";
 
 const LoadManagement: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -105,16 +106,18 @@ const LoadManagement: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        {/* <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Load Allocations</h2> */}
-        {canCreateLoads && (
-          <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            {showCreateForm ? "Cancel" : "Create Load"}
-          </button>
-        )}
+      <div className="flex justify-end items-center mb-6">
+        <div className="flex items-center gap-3">
+          {canCreateLoads && (
+            <button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              {showCreateForm ? "Cancel" : "Create Load"}
+            </button>
+          )}
+          <ExportLoadsButton />
+        </div>
       </div>
 
       {showCreateForm && canCreateLoads && (
