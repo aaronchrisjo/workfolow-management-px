@@ -24,7 +24,7 @@ const Layout: React.FC = () => {
 
   const tabs: { id: Tab; label: string; icon: string; roles: string[] }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
-    { id: 'kanban', label: 'Kanban Tracker', icon: '📋', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
+    { id: 'kanban', label: 'Task Board', icon: '📋', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
     { id: 'paused', label: 'Paused Loads', icon: '⏸️', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
     { id: 'transferred', label: 'Transferred Loads', icon: '🔄', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
     { id: 'allocations', label: 'Allocations', icon: '📦', roles: ['admin', 'supervisor', 'allocator', 'employee'] },
