@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getLoadsByStatus, updateLoad } from '../lib/api';
-import type { Load } from '../types/index';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState, useEffect } from "react";
+import { getLoadsByStatus, updateLoad } from "../lib/api";
+import type { Load } from "../types/index";
+import { useAuth } from "../hooks/useAuth";
 
 const PausedLoads: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -14,10 +14,10 @@ const PausedLoads: React.FC = () => {
 
   const fetchPausedLoads = async () => {
     try {
-      const loadsData = await getLoadsByStatus('paused');
+      const loadsData = await getLoadsByStatus("paused");
       setLoads(loadsData);
     } catch (err) {
-      console.error('Failed to fetch paused loads:', err);
+      console.error("Failed to fetch paused loads:", err);
     } finally {
       setIsLoading(false);
     }
@@ -25,20 +25,24 @@ const PausedLoads: React.FC = () => {
 
   const handleResume = async (loadId: string) => {
     try {
-      await updateLoad(loadId, { status: 'in_progress' });
+      await updateLoad(loadId, { status: "in_progress" });
       fetchPausedLoads();
     } catch (err) {
-      alert('Failed to resume load');
+      alert("Failed to resume load");
     }
   };
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>;
+    return (
+      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Paused Loads</h2>
+      {/* <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Paused Loads</h2> */}
 
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
@@ -56,7 +60,9 @@ const PausedLoads: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Paused Since
               </th>
-              {(user?.role === 'admin' || user?.role === 'supervisor' || user?.role === 'allocator') && (
+              {(user?.role === "admin" ||
+                user?.role === "supervisor" ||
+                user?.role === "allocator") && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
@@ -65,7 +71,10 @@ const PausedLoads: React.FC = () => {
           </thead>
           <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-neutral-700">
             {loads.map((load) => (
-              <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
+              <tr
+                key={load.id}
+                className="hover:bg-gray-50 dark:hover:bg-neutral-800"
+              >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {load.client_name}
                 </td>
@@ -73,12 +82,14 @@ const PausedLoads: React.FC = () => {
                   {load.client_number}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {load.assigned_to_name || 'Unassigned'}
+                  {load.assigned_to_name || "Unassigned"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {new Date(load.updated_at).toLocaleString()}
                 </td>
-                {(user?.role === 'admin' || user?.role === 'supervisor' || user?.role === 'allocator') && (
+                {(user?.role === "admin" ||
+                  user?.role === "supervisor" ||
+                  user?.role === "allocator") && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => handleResume(load.id)}

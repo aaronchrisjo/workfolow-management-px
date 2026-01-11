@@ -1,17 +1,39 @@
-import { useState, useEffect } from 'react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { getLoads, updateLoad, subscribeToLoads } from '../lib/api';
-import type { Load, LoadStatus } from '../types/index';
-import { useAuth } from '../hooks/useAuth';
-import KanbanColumn from './KanbanColumn';
+import { useState, useEffect } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { getLoads, updateLoad, subscribeToLoads } from "../lib/api";
+import type { Load, LoadStatus } from "../types/index";
+import { useAuth } from "../hooks/useAuth";
+import KanbanColumn from "./KanbanColumn";
 
 const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
-  { value: 'pending', label: 'Pending', color: 'bg-gray-100 dark:bg-gray-800' },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900' },
-  { value: 'paused', label: 'Paused', color: 'bg-yellow-100 dark:bg-yellow-900' },
-  { value: 'completed', label: 'Completed', color: 'bg-green-100 dark:bg-green-900' },
-  { value: 'transferred', label: 'Transferred', color: 'bg-purple-100 dark:bg-purple-900' },
+  { value: "pending", label: "Pending", color: "bg-gray-100 dark:bg-gray-800" },
+  {
+    value: "in_progress",
+    label: "In Progress",
+    color: "bg-blue-100 dark:bg-blue-900",
+  },
+  {
+    value: "paused",
+    label: "Paused",
+    color: "bg-yellow-100 dark:bg-yellow-900",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+    color: "bg-green-100 dark:bg-green-900",
+  },
+  {
+    value: "transferred",
+    label: "Transferred",
+    color: "bg-purple-100 dark:bg-purple-900",
+  },
 ];
 
 const KanbanBoard = () => {
@@ -31,21 +53,27 @@ const KanbanBoard = () => {
     fetchData();
 
     const channel = subscribeToLoads((payload) => {
-      if (payload.eventType === 'INSERT' && payload.new) {
+      if (payload.eventType === "INSERT" && payload.new) {
         setLoads((prev) => {
-          if (user?.role === 'employee' && payload.new?.assigned_to !== user.id) {
+          if (
+            user?.role === "employee" &&
+            payload.new?.assigned_to !== user.id
+          ) {
             return prev;
           }
           return [payload.new!, ...prev];
         });
-      } else if (payload.eventType === 'UPDATE' && payload.new) {
+      } else if (payload.eventType === "UPDATE" && payload.new) {
         setLoads((prev) => {
-          if (user?.role === 'employee' && payload.new?.assigned_to !== user.id) {
+          if (
+            user?.role === "employee" &&
+            payload.new?.assigned_to !== user.id
+          ) {
             return prev.filter((l) => l.id !== payload.new!.id);
           }
           return prev.map((l) => (l.id === payload.new!.id ? payload.new! : l));
         });
-      } else if (payload.eventType === 'DELETE' && payload.old) {
+      } else if (payload.eventType === "DELETE" && payload.old) {
         setLoads((prev) => prev.filter((l) => l.id !== payload.old!.id));
       }
     });
@@ -59,13 +87,15 @@ const KanbanBoard = () => {
     try {
       let fetchedLoads = await getLoads();
 
-      if (user?.role === 'employee') {
-        fetchedLoads = fetchedLoads.filter((load: Load) => load.assigned_to === user.id);
+      if (user?.role === "employee") {
+        fetchedLoads = fetchedLoads.filter(
+          (load: Load) => load.assigned_to === user.id
+        );
       }
 
       setLoads(fetchedLoads);
     } catch (err) {
-      console.error('Failed to fetch data:', err);
+      console.error("Failed to fetch data:", err);
     } finally {
       setIsLoading(false);
     }
@@ -79,39 +109,41 @@ const KanbanBoard = () => {
     const loadId = active.id.toString();
     const newStatus = over.id as LoadStatus;
 
-    const load = loads.find(l => l.id === loadId);
+    const load = loads.find((l) => l.id === loadId);
     if (!load || load.status === newStatus) return;
 
-    setLoads(prevLoads =>
-      prevLoads.map(l =>
-        l.id === loadId ? { ...l, status: newStatus } : l
-      )
+    setLoads((prevLoads) =>
+      prevLoads.map((l) => (l.id === loadId ? { ...l, status: newStatus } : l))
     );
 
     try {
       await updateLoad(loadId, { status: newStatus });
     } catch (err) {
-      console.error('Failed to update load:', err);
-      setLoads(prevLoads =>
-        prevLoads.map(l =>
+      console.error("Failed to update load:", err);
+      setLoads((prevLoads) =>
+        prevLoads.map((l) =>
           l.id === loadId ? { ...l, status: load.status } : l
         )
       );
-      alert('Failed to update load status');
+      alert("Failed to update load status");
     }
   };
 
   const getLoadsByStatus = (status: LoadStatus) => {
-    return loads.filter(load => load.status === status);
+    return loads.filter((load) => load.status === status);
   };
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>;
+    return (
+      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Kanban Board</h2>
+      {/* <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Kanban Board</h2> */}
 
       <DndContext
         sensors={sensors}
@@ -119,7 +151,7 @@ const KanbanBoard = () => {
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-5 gap-4">
-          {STATUSES.map(status => (
+          {STATUSES.map((status) => (
             <KanbanColumn
               key={status.value}
               status={status.value}

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { getUsers, createUser, deleteUser } from '../lib/api';
-import type { User } from '../types/index';
+import React, { useState, useEffect } from "react";
+import { getUsers, createUser, deleteUser } from "../lib/api";
+import type { User } from "../types/index";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    role: 'employee' as 'admin' | 'supervisor' | 'allocator' | 'employee',
+    email: "",
+    password: "",
+    name: "",
+    role: "employee" as "admin" | "supervisor" | "allocator" | "employee",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -23,7 +23,7 @@ const UserManagement: React.FC = () => {
       const usersData = await getUsers();
       setUsers(usersData);
     } catch (err) {
-      console.error('Failed to fetch users:', err);
+      console.error("Failed to fetch users:", err);
     } finally {
       setIsLoading(false);
     }
@@ -31,52 +31,60 @@ const UserManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
       await createUser(formData);
-      setFormData({ email: '', password: '', name: '', role: 'employee' });
+      setFormData({ email: "", password: "", name: "", role: "employee" });
       setShowCreateForm(false);
       fetchUsers();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message || 'Failed to create user');
+        setError(err.message || "Failed to create user");
       } else {
-        setError('Failed to create user');
+        setError("Failed to create user");
       }
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
       await deleteUser(id);
       fetchUsers();
     } catch (err) {
-      alert('Failed to delete user');
+      alert("Failed to delete user");
     }
   };
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>;
+    return (
+      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Management</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+          User Management
+        </h2>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          {showCreateForm ? 'Cancel' : 'Create User'}
+          {showCreateForm ? "Cancel" : "Create User"}
         </button>
       </div>
 
       {showCreateForm && (
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow mb-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Create New User</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Create New User
+          </h3>
           {error && (
             <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
               {error}
@@ -84,40 +92,59 @@ const UserManagement: React.FC = () => {
           )}
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Name
+              </label>
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Role
+              </label>
               <select
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as typeof formData.role })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value as typeof formData.role,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
               >
                 <option value="employee">Employee</option>
@@ -169,12 +196,17 @@ const UserManagement: React.FC = () => {
                   {user.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' :
-                    user.role === 'supervisor' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300' :
-                    user.role === 'allocator' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      user.role === "admin"
+                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+                        : user.role === "supervisor"
+                        ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300"
+                        : user.role === "allocator"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                    }`}
+                  >
                     {user.role}
                   </span>
                 </td>
