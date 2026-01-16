@@ -17,7 +17,7 @@ const LoadManagement: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filterAssignedTo, setFilterAssignedTo] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 13;
   const [formData, setFormData] = useState({
     client_name: "",
     client_number: "",
@@ -248,19 +248,23 @@ const LoadManagement: React.FC = () => {
                 Employees
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                <select
-                  value={filterAssignedTo}
-                  onChange={(e) => setFilterAssignedTo(e.target.value)}
-                  className="border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                >
-                  <option value="">Assigned to</option>
-                  <option value="unassigned">Unassigned</option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name}
-                    </option>
-                  ))}
-                </select>
+                {user?.role !== "employee" ? (
+                  <select
+                    value={filterAssignedTo}
+                    onChange={(e) => setFilterAssignedTo(e.target.value)}
+                    className="border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Assigned to</option>
+                    <option value="unassigned">Unassigned</option>
+                    {users.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  "Assigned To"
+                )}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Created
