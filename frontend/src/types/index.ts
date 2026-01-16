@@ -15,6 +15,7 @@ export interface Load {
   client_name: string;
   client_number: string;
   status: LoadStatus;
+  employee_count: number;
   assigned_to: string | null;
   assigned_to_name?: string;
   assigned_to_email?: string;

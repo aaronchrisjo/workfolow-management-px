@@ -130,7 +130,19 @@ const KanbanBoard = () => {
   };
 
   const getLoadsByStatus = (status: LoadStatus) => {
-    return loads.filter((load) => load.status === status);
+    return loads.filter((load) => {
+      if (load.status !== status) return false;
+      
+      // For completed loads, only show those completed within the last 48 hours
+      if (status === "completed") {
+        const completedAt = new Date(load.updated_at);
+        const now = new Date();
+        const hoursDiff = (now.getTime() - completedAt.getTime()) / (1000 * 60 * 60);
+        return hoursDiff <= 48;
+      }
+      
+      return true;
+    });
   };
 
   if (isLoading) {

@@ -68,10 +68,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-          User Management
-        </h2>
+      <div className="flex justify-end items-center mb-6">
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
