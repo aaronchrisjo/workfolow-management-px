@@ -15,10 +15,13 @@ const LoadManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [filterAssignedTo, setFilterAssignedTo] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [formData, setFormData] = useState({
     client_name: "",
     client_number: "",
-    status: "pending" as const,
+    employee_count: 1,
     assigned_to: "",
   });
   const [error, setError] = useState("");
@@ -29,6 +32,26 @@ const LoadManagement: React.FC = () => {
     user?.role === "supervisor" ||
     user?.role === "allocator";
 
+  const canExportLoads =
+    user?.role === "admin" || user?.role === "supervisor";
+
+  const filteredLoads = loads.filter((load) => {
+    if (!filterAssignedTo) return true;
+    if (filterAssignedTo === "unassigned") return !load.assigned_to;
+    return load.assigned_to === filterAssignedTo;
+  });
+
+  const totalPages = Math.ceil(filteredLoads.length / itemsPerPage);
+  const paginatedLoads = filteredLoads.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterAssignedTo]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -37,7 +60,7 @@ const LoadManagement: React.FC = () => {
     try {
       const [loadsData, usersData] = await Promise.all([
         getLoads(),
-        canCreateLoads ? getUsers() : Promise.resolve([]),
+        getUsers(),
       ]);
       setLoads(loadsData);
       setUsers(usersData);
@@ -56,13 +79,13 @@ const LoadManagement: React.FC = () => {
       await createLoad({
         client_name: formData.client_name,
         client_number: formData.client_number,
-        status: formData.status,
+        employee_count: formData.employee_count,
         assigned_to: formData.assigned_to || undefined,
       });
       setFormData({
         client_name: "",
         client_number: "",
-        status: "pending",
+        employee_count: 1,
         assigned_to: "",
       });
       setShowCreateForm(false);
@@ -116,7 +139,7 @@ const LoadManagement: React.FC = () => {
               {showCreateForm ? "Cancel" : "Create Load"}
             </button>
           )}
-          <ExportLoadsButton />
+          {canExportLoads && <ExportLoadsButton />}
         </div>
       </div>
 
@@ -161,24 +184,21 @@ const LoadManagement: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Status
+                Employee Count
               </label>
-              <select
-                value={formData.status}
+              <input
+                type="number"
+                min="1"
+                value={formData.employee_count}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    status: e.target.value as typeof formData.status,
+                    employee_count: parseInt(e.target.value) || 1,
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-              >
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="paused">Paused</option>
-                <option value="completed">Completed</option>
-                <option value="transferred">Transferred</option>
-              </select>
+                required
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -225,7 +245,22 @@ const LoadManagement: React.FC = () => {
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Assigned To
+                Employees
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <select
+                  value={filterAssignedTo}
+                  onChange={(e) => setFilterAssignedTo(e.target.value)}
+                  className="border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
+                >
+                  <option value="">Assigned to</option>
+                  <option value="unassigned">Unassigned</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
+                </select>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Created
@@ -238,7 +273,7 @@ const LoadManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-neutral-700">
-            {loads.map((load) => (
+            {paginatedLoads.map((load) => (
               <tr key={load.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {load.client_name}
@@ -262,6 +297,9 @@ const LoadManagement: React.FC = () => {
                   >
                     {load.status.replace("_", " ")}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {load.employee_count ?? 1}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {canCreateLoads ? (
@@ -298,12 +336,42 @@ const LoadManagement: React.FC = () => {
             ))}
           </tbody>
         </table>
-        {loads.length === 0 && (
+        {paginatedLoads.length === 0 && (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            No loads found
+            {loads.length === 0 ? "No loads found" : "No loads match the selected filter"}
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 text-sm text-gray-600 dark:text-gray-400">
+          <span>
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, filteredLoads.length)} of{" "}
+            {filteredLoads.length} loads
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border border-gray-300 dark:border-neutral-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-neutral-800"
+            >
+              Previous
+            </button>
+            <span className="px-3 py-1">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border border-gray-300 dark:border-neutral-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-neutral-800"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

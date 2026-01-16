@@ -78,6 +78,7 @@ const mapRpcToLoad = (row: Record<string, unknown>): Load => ({
   client_name: (row.title as string) || (row.client_name as string) || '',
   client_number: (row.client_number as string) || '',
   status: row.status as LoadStatus,
+  employee_count: (row.employee_count as number) ?? 1,
   assigned_to: row.assigned_to as string | null,
   assigned_to_name: (row.assigned_to_name as string) || undefined,
   assigned_to_email: (row.assigned_to_email as string) || undefined,
@@ -121,6 +122,7 @@ export const createLoad = async (loadData: {
   client_name: string;
   client_number: string;
   status?: LoadStatus;
+  employee_count?: number;
   assigned_to?: string;
 }): Promise<Load> => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -132,6 +134,7 @@ export const createLoad = async (loadData: {
       title: loadData.client_name,
       client_number: loadData.client_number,
       status: loadData.status || 'pending',
+      employee_count: loadData.employee_count || 1,
       assigned_to: loadData.assigned_to || null,
       created_by: user.id,
     })
