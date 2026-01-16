@@ -226,6 +226,7 @@ export const subscribeToLoads = (
             client_name: (oldRec.title as string) || (oldRec.client_name as string) || '',
             client_number: (oldRec.client_number as string) || '',
             status: oldRec.status as LoadStatus,
+            employee_count: (oldRec.employee_count as number) || 1,
             assigned_to: oldRec.assigned_to as string | null,
             created_by: oldRec.created_by as string,
             created_at: oldRec.created_at as string,

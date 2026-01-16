@@ -16,6 +16,7 @@ interface LoadRow {
   client_name?: string;
   client_number: string;
   status: LoadStatus;
+  employee_count?: number;
   assigned_to: string | null;
   assigned_to_name?: string;
   created_by: string;
@@ -29,6 +30,7 @@ const mapRowToLoad = (row: LoadRow): Load => ({
   client_name: row.title || row.client_name || '',
   client_number: row.client_number || '',
   status: row.status,
+  employee_count: row.employee_count || 1,
   assigned_to: row.assigned_to,
   assigned_to_name: row.assigned_to_name,
   created_by: row.created_by,
