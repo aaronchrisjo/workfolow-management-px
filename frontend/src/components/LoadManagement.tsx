@@ -9,12 +9,14 @@ import {
 import type { Load, User } from "../types/index";
 import { useAuth } from "../hooks/useAuth";
 import ExportLoadsButton from "./ExportLoadsButton";
+import EmployeeAllocationStats from "./EmployeeAllocationStats";
 
 const LoadManagement: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showAllocationStats, setShowAllocationStats] = useState(false);
   const [filterAssignedTo, setFilterAssignedTo] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 13;
@@ -33,6 +35,9 @@ const LoadManagement: React.FC = () => {
     user?.role === "allocator";
 
   const canExportLoads =
+    user?.role === "admin" || user?.role === "supervisor";
+
+  const canViewAllocationStats =
     user?.role === "admin" || user?.role === "supervisor";
 
   const filteredLoads = loads.filter((load) => {
@@ -139,6 +144,28 @@ const LoadManagement: React.FC = () => {
               {showCreateForm ? "Cancel" : "Create Load"}
             </button>
           )}
+          {canViewAllocationStats && (
+            <button
+              onClick={() => setShowAllocationStats(true)}
+              className="flex items-center gap-2 bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700"
+              title="View Daily Allocation Stats"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              Stats
+            </button>
+          )}
           {canExportLoads && <ExportLoadsButton />}
         </div>
       </div>
@@ -193,7 +220,7 @@ const LoadManagement: React.FC = () => {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    employee_count: parseInt(e.target.value) || 1,
+                    employee_count: e.target.value === "" ? 0 : parseInt(e.target.value),
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
@@ -376,6 +403,13 @@ const LoadManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      <EmployeeAllocationStats
+        isOpen={showAllocationStats}
+        onClose={() => setShowAllocationStats(false)}
+        loads={loads}
+        users={users}
+      />
     </div>
   );
 };
