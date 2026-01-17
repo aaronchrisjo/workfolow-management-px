@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Load, User, LoadStatus } from '../types/index';
+import type { Load, User, LoadStatus, Comment } from '../types/index';
 
 // Users (from profiles table)
 export const getUsers = async (): Promise<User[]> => {
@@ -200,6 +200,52 @@ export const deleteLoad = async (id: string): Promise<void> => {
     }
     throw error;
   }
+};
+
+// Comments
+export const getComments = async (loadId: string): Promise<Comment[]> => {
+  const { data, error } = await supabase
+    .from('comments')
+    .select('*, profiles:user_id(name)')
+    .eq('load_id', loadId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  return (data || []).map((row: Record<string, unknown>) => ({
+    id: row.id as string,
+    load_id: row.load_id as string,
+    user_id: row.user_id as string,
+    user_name: (row.profiles as { name?: string } | null)?.name || undefined,
+    content: row.content as string,
+    created_at: row.created_at as string,
+  }));
+};
+
+export const createComment = async (loadId: string, content: string): Promise<Comment> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('comments')
+    .insert({
+      load_id: loadId,
+      user_id: user.id,
+      content,
+    })
+    .select('*, profiles:user_id(name)')
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    load_id: data.load_id,
+    user_id: data.user_id,
+    user_name: (data.profiles as { name?: string } | null)?.name || undefined,
+    content: data.content,
+    created_at: data.created_at,
+  };
 };
 
 // Realtime subscription for loads

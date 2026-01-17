@@ -11,6 +11,7 @@ import { getLoads, updateLoad, subscribeToLoads } from "../lib/api";
 import type { Load, LoadStatus } from "../types/index";
 import { useAuth } from "../hooks/useAuth";
 import KanbanColumn from "./KanbanColumn";
+import LoadDetailModal from "./LoadDetailModal";
 
 const STATUSES: { value: LoadStatus; label: string; color: string }[] = [
   { value: "pending", label: "Pending", color: "bg-gray-100 dark:bg-gray-800" },
@@ -40,7 +41,19 @@ const KanbanBoard = () => {
   const [loads, setLoads] = useState<Load[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAllLoads, setShowAllLoads] = useState(true);
+  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+
+  const handleLoadDoubleClick = (load: Load) => {
+    setSelectedLoad(load);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedLoad(null);
+  };
 
   const canToggleView =
     user?.role === "admin" ||
@@ -202,10 +215,17 @@ const KanbanBoard = () => {
               label={status.label}
               color={status.color}
               loads={getLoadsByStatus(status.value)}
+              onLoadDoubleClick={handleLoadDoubleClick}
             />
           ))}
         </div>
       </DndContext>
+
+      <LoadDetailModal
+        load={selectedLoad}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

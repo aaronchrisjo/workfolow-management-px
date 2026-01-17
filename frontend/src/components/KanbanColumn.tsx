@@ -8,9 +8,10 @@ interface KanbanColumnProps {
   label: string;
   color: string;
   loads: Load[];
+  onLoadDoubleClick?: (load: Load) => void;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, label, color, loads }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, label, color, loads, onLoadDoubleClick }) => {
   const { setNodeRef } = useDroppable({
     id: status,
   });
@@ -27,7 +28,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, label, color, loads
         className="flex-1 bg-gray-50 dark:bg-black p-3 rounded-b-lg min-h-[500px] space-y-2"
       >
         {loads.map(load => (
-          <LoadCard key={load.id} load={load} />
+          <LoadCard key={load.id} load={load} onDoubleClick={onLoadDoubleClick} />
         ))}
 
         {loads.length === 0 && (

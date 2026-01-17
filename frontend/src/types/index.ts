@@ -25,6 +25,15 @@ export interface Load {
   updated_at: string;
 }
 
+export interface Comment {
+  id: string;
+  load_id: string;
+  user_id: string;
+  user_name?: string;
+  content: string;
+  created_at: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;

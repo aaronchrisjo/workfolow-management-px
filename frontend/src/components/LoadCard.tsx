@@ -4,9 +4,10 @@ import type { Load } from '../types/index';
 
 interface LoadCardProps {
   load: Load;
+  onDoubleClick?: (load: Load) => void;
 }
 
-const LoadCard: React.FC<LoadCardProps> = ({ load }) => {
+const LoadCard: React.FC<LoadCardProps> = ({ load, onDoubleClick }) => {
   const {
     attributes,
     listeners,
@@ -20,12 +21,18 @@ const LoadCard: React.FC<LoadCardProps> = ({ load }) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDoubleClick?.(load);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
+      onDoubleClick={handleDoubleClick}
       className="bg-white dark:bg-neutral-900 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-md cursor-grab active:cursor-grabbing"
     >
       <div className="flex justify-between items-start mb-2">
