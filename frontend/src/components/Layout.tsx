@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
@@ -8,14 +8,27 @@ import PausedLoads from './PausedLoads';
 import TransferredLoads from './TransferredLoads';
 import LoadManagement from './LoadManagement';
 import UserManagement from './UserManagement';
+import PersonalDashboard from './PersonalDashboard';
+import { supabase } from '../lib/supabase';
+import type { Load } from '../types/index';
 
 type Tab = 'dashboard' | 'kanban' | 'paused' | 'transferred' | 'allocations' | 'users';
 
 const Layout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [showPersonalDashboard, setShowPersonalDashboard] = useState(false);
+  const [loads, setLoads] = useState<Load[]>([]);
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchLoads = async () => {
+      const { data } = await supabase.from('loads').select('*');
+      if (data) setLoads(data);
+    };
+    fetchLoads();
+  }, [showPersonalDashboard]);
 
   const handleLogout = () => {
     logout();
@@ -67,8 +80,11 @@ const Layout: React.FC = () => {
 
         {/* User Info & Actions */}
         <div className="p-4 border-t border-gray-200 dark:border-neutral-800 space-y-3">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex-1 min-w-0">
+          <button
+            onClick={() => setShowPersonalDashboard(true)}
+            className="w-full flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <div className="flex-1 min-w-0 text-left">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {user?.name}
               </p>
@@ -79,7 +95,7 @@ const Layout: React.FC = () => {
             <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
               {user?.role}
             </span>
-          </div>
+          </button>
 
           <button
             onClick={handleLogout}
@@ -89,6 +105,15 @@ const Layout: React.FC = () => {
           </button>
         </div>
       </aside>
+
+      {user && (
+        <PersonalDashboard
+          isOpen={showPersonalDashboard}
+          onClose={() => setShowPersonalDashboard(false)}
+          user={user}
+          loads={loads}
+        />
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">

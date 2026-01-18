@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type { Load, User } from "../types/index";
+import PersonalDashboard from "./PersonalDashboard";
 
 interface EmployeeAllocationStatsProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const EmployeeAllocationStats: React.FC<EmployeeAllocationStatsProps> = ({
   loads,
   users,
 }) => {
+  const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const today = new Date().toDateString();
 
   const stats = useMemo(() => {
@@ -150,8 +152,14 @@ const EmployeeAllocationStats: React.FC<EmployeeAllocationStatsProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-neutral-700">
-              {stats.userStats.map((stat) => (
-                <tr key={stat.id}>
+              {stats.userStats.map((stat) => {
+                const employee = users.find((u) => u.id === stat.id);
+                return (
+                <tr
+                  key={stat.id}
+                  onClick={() => employee && setSelectedEmployee(employee)}
+                  className="cursor-pointer transition-all duration-150 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:shadow-md hover:scale-[1.01] hover:-translate-y-0.5"
+                >
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     {stat.name}
                   </td>
@@ -173,7 +181,8 @@ const EmployeeAllocationStats: React.FC<EmployeeAllocationStatsProps> = ({
                     {stat.totalEmployees}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
 
@@ -184,6 +193,15 @@ const EmployeeAllocationStats: React.FC<EmployeeAllocationStatsProps> = ({
           )}
         </div>
       </div>
+
+      {selectedEmployee && (
+        <PersonalDashboard
+          isOpen={!!selectedEmployee}
+          onClose={() => setSelectedEmployee(null)}
+          user={selectedEmployee}
+          loads={loads}
+        />
+      )}
     </div>
   );
 };
