@@ -22,6 +22,12 @@ const PersonalDashboard: React.FC<PersonalDashboardProps> = ({
       (load) => new Date(load.created_at).toDateString() === today
     );
 
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthLoads = allUserLoads.filter(
+      (load) => new Date(load.created_at) >= monthStart
+    );
+
     const todayCompleted = todayLoads.filter((load) => load.status === 'completed');
     const todayPending = todayLoads.filter((load) => load.status === 'pending');
     const todayInProgress = todayLoads.filter((load) => load.status === 'in_progress');
@@ -36,8 +42,8 @@ const PersonalDashboard: React.FC<PersonalDashboardProps> = ({
       ? Math.round((todayCompleted.length / todayLoads.length) * 100)
       : 0;
 
-    const allTimeCompleted = allUserLoads.filter((load) => load.status === 'completed').length;
-    const allTimeEmployees = allUserLoads.reduce(
+    const monthCompleted = monthLoads.filter((load) => load.status === 'completed').length;
+    const monthEmployees = monthLoads.reduce(
       (sum, load) => sum + (load.employee_count || 1),
       0
     );
@@ -52,10 +58,10 @@ const PersonalDashboard: React.FC<PersonalDashboardProps> = ({
         employees: todayEmployees,
         completionRate,
       },
-      allTime: {
-        total: allUserLoads.length,
-        completed: allTimeCompleted,
-        employees: allTimeEmployees,
+      month: {
+        total: monthLoads.length,
+        completed: monthCompleted,
+        employees: monthEmployees,
       },
     };
   }, [loads, user.id, today]);
@@ -153,27 +159,27 @@ const PersonalDashboard: React.FC<PersonalDashboardProps> = ({
             </div>
           </div>
 
-          {/* All Time Stats */}
+          {/* This Month Stats */}
           <div>
             <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
-              All Time
+              This Month
             </h4>
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-3 text-center">
                 <p className="text-xl font-bold text-gray-700 dark:text-gray-300">
-                  {stats.allTime.total}
+                  {stats.month.total}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Total Loads</p>
               </div>
               <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-3 text-center">
                 <p className="text-xl font-bold text-gray-700 dark:text-gray-300">
-                  {stats.allTime.completed}
+                  {stats.month.completed}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
               </div>
               <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-3 text-center">
                 <p className="text-xl font-bold text-gray-700 dark:text-gray-300">
-                  {stats.allTime.employees}
+                  {stats.month.employees}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Employees</p>
               </div>
